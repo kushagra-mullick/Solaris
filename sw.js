@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sunlog-v1.0.0';
+const CACHE_NAME = 'solaris-v1.1.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -32,7 +32,6 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Navigation & static asset fallback
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

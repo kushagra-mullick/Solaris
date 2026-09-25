@@ -1,24 +1,24 @@
 /**
- * SunLog - Main Application Controller
- * Handles UI interactions, modal controls, Sun Mode toggle,
- * offline logging workflow, and sync event handling.
+ * Solaris - Main Application Controller
+ * Engineered for outdoor workers under extreme solar glare and low-end phone screens.
  */
 
-// Demo base64 sample photo for quick testing
-const SAMPLE_PHOTO_DATA = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'%3E%3Crect width='600' height='360' fill='%231f2937'/%3E%3Cpath d='M0 0l600 360M600 0L0 360' stroke='%23374151' stroke-width='2'/%3E%3Cpolygon points='300,70 370,220 230,220' fill='%23ffb703' stroke='%23000' stroke-width='8' stroke-linejoin='round'/%3E%3Ctext x='300' y='180' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle' fill='%23000'%3E!%3C/text%3E%3Crect x='100' y='260' width='400' height='50' rx='8' fill='%23111827' stroke='%234b5563' stroke-width='2'/%3E%3Ctext x='300' y='292' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23ffffff'%3EFIELD PHOTO: HAZARD CONE DEPLOYED%3C/text%3E%3C/svg%3E";
+// Demo sample photo for instant evidence preview
+const SAMPLE_PHOTO_DATA = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'%3E%3Crect width='600' height='360' fill='%23000000'/%3E%3Cpolygon points='300,50 400,240 200,240' fill='%23ffea00' stroke='%23ffffff' stroke-width='6' stroke-linejoin='round'/%3E%3Ctext x='300' y='195' font-family='sans-serif' font-size='62' font-weight='900' text-anchor='middle' fill='%23000000'%3E!%3C/text%3E%3Crect x='60' y='270' width='480' height='56' rx='8' fill='%23111111' stroke='%23ffffff' stroke-width='3'/%3E%3Ctext x='300' y='306' font-family='sans-serif' font-size='20' font-weight='900' text-anchor='middle' fill='%23ffffff'%3EFIELD PHOTO: HAZARD PERIMETER%3C/text%3E%3C/svg%3E";
 
-const SAMPLE_FORKLIFT_PHOTO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'%3E%3Crect width='600' height='360' fill='%23111827'/%3E%3Crect x='80' y='60' width='440' height='240' rx='12' fill='%231e293b' stroke='%23ffb703' stroke-width='4'/%3E%3Ctext x='300' y='160' font-family='sans-serif' font-size='48' text-anchor='middle' fill='%23ffb703'%3E⚙️%3C/text%3E%3Ctext x='300' y='210' font-family='sans-serif' font-size='20' font-weight='bold' text-anchor='middle' fill='%23ffffff'%3EEQUIPMENT TAG #FL-402%3C/text%3E%3Ctext x='300' y='245' font-family='sans-serif' font-size='15' text-anchor='middle' fill='%2394a3b8'%3EHYDRAULIC VALVE PRESSURE DROP%3C/text%3E%3C/svg%3E";
+const SAMPLE_EQUIPMENT_PHOTO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='360' viewBox='0 0 600 360'%3E%3Crect width='600' height='360' fill='%23000000'/%3E%3Crect x='50' y='40' width='500' height='280' rx='12' fill='%23111827' stroke='%23ffea00' stroke-width='6'/%3E%3Ctext x='300' y='150' font-family='sans-serif' font-size='56' text-anchor='middle' fill='%23ffea00'%3E⚙️%3C/text%3E%3Ctext x='300' y='210' font-family='sans-serif' font-size='24' font-weight='900' text-anchor='middle' fill='%23ffffff'%3EEQUIPMENT FAULT: TAG #FL-402%3C/text%3E%3Ctext x='300' y='250' font-family='sans-serif' font-size='18' font-weight='800' text-anchor='middle' fill='%23ffea00'%3EHYDRAULIC PRESSURE LOSS%3C/text%3E%3C/svg%3E";
 
-class SunLogApp {
+class SolarisApp {
   constructor() {
     this.currentCategory = {
       id: 'safety',
       label: 'Safety Issue',
       icon: '⚠️',
-      color: '#ffb703'
+      color: '#ffea00'
     };
     this.currentPhotoData = null;
     this.audioContext = null;
+    this.isLargeFont = false;
 
     this.initDOM();
     this.bindEvents();
@@ -28,12 +28,23 @@ class SunLogApp {
   }
 
   initDOM() {
-    // Buttons & Toggles
-    this.btnSunMode = document.getElementById('btn-sun-mode');
-    this.sunModeIcon = document.getElementById('sun-mode-icon');
-    this.sunModeText = document.getElementById('sun-mode-text');
+    // Glare & Font Controls
+    this.glareTabs = document.querySelectorAll('.glare-tab');
+    this.btnFontScale = document.getElementById('btn-font-scale');
+    this.fontScaleText = document.getElementById('font-scale-text');
+
+    // Network & Simulation
     this.btnToggleOfflineSim = document.getElementById('btn-toggle-offline-sim');
     this.simToggleText = document.getElementById('sim-toggle-text');
+    this.netStatusDot = document.getElementById('network-status-dot');
+    this.netStatusText = document.getElementById('network-status-text');
+
+    // Counters
+    this.statQueued = document.getElementById('stat-queued');
+    this.statSynced = document.getElementById('stat-synced');
+    this.statTotal = document.getElementById('stat-total');
+
+    // Main Actions
     this.btnOpenLogModal = document.getElementById('btn-open-log-modal');
     this.btnCloseModal = document.getElementById('btn-close-modal');
     this.btnManualSync = document.getElementById('btn-manual-sync');
@@ -41,14 +52,6 @@ class SunLogApp {
     this.btnGps = document.getElementById('btn-gps');
     this.btnSamplePhoto = document.getElementById('btn-sample-photo');
     this.btnRemovePhoto = document.getElementById('btn-remove-photo');
-
-    // Indicators & Counters
-    this.netStatusDot = document.getElementById('network-status-dot');
-    this.netStatusText = document.getElementById('network-status-text');
-    this.statQueued = document.getElementById('stat-queued');
-    this.statSynced = document.getElementById('stat-synced');
-    this.statTotal = document.getElementById('stat-total');
-    this.feedFilterCount = document.getElementById('feed-filter-count');
 
     // Modal & Form Elements
     this.modalOverlay = document.getElementById('log-modal-overlay');
@@ -68,14 +71,30 @@ class SunLogApp {
   }
 
   bindEvents() {
-    // Sun Mode Toggle
-    this.btnSunMode.addEventListener('click', () => this.toggleSunMode());
+    // Glare Mode Tabs
+    this.glareTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTheme = tab.dataset.theme;
+        this.setGlareTheme(targetTheme);
+        this.playLoudTone(700);
+      });
+    });
+
+    // Font Scale Toggle
+    this.btnFontScale.addEventListener('click', () => {
+      this.isLargeFont = !this.isLargeFont;
+      document.body.classList.toggle('font-large', this.isLargeFont);
+      this.fontScaleText.textContent = this.isLargeFont ? 'A- NORMAL' : 'A+ ZOOM';
+      localStorage.setItem('solaris_font_scale', this.isLargeFont ? 'large' : 'normal');
+      this.playLoudTone(this.isLargeFont ? 800 : 450);
+      this.showToast(this.isLargeFont ? '🔍 Text Zoom (120% Glare Readability)' : 'Standard Text Size');
+    });
 
     // Offline Simulation Toggle
     this.btnToggleOfflineSim.addEventListener('click', () => {
       const isSim = window.sunLogSync.toggleOfflineSimulation();
-      this.playTactileSound(isSim ? 300 : 700);
-      this.showToast(isSim ? '🔴 Simulated Offline Mode Active' : '🟢 Back Online - Resuming Auto-Sync');
+      this.playLoudTone(isSim ? 320 : 750);
+      this.showToast(isSim ? '🔴 Simulated Offline Mode Active' : '🟢 Back Online — Syncing Queue');
     });
 
     // Modal Sheet Open / Close
@@ -101,11 +120,11 @@ class SunLogApp {
           icon: tile.dataset.icon,
           color: tile.dataset.color
         };
-        this.playTactileSound(550);
+        this.playLoudTone(600);
       });
     });
 
-    // Quick Note Chips
+    // Quick Phrases
     document.querySelectorAll('.quick-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const text = chip.dataset.text;
@@ -115,22 +134,20 @@ class SunLogApp {
           this.logNotes.value = text;
         }
         this.logNotes.focus();
-        this.playTactileSound(600);
+        this.playLoudTone(650);
       });
     });
 
-    // Location / GPS Auto-detect
+    // GPS Auto-detect
     this.btnGps.addEventListener('click', () => this.detectLocation());
 
-    // Photo input
+    // Photo input & Demo Photo
     this.cameraFileInput.addEventListener('change', (e) => this.handlePhotoSelected(e));
     this.btnSamplePhoto.addEventListener('click', () => {
       this.setPhotoPreview(SAMPLE_PHOTO_DATA);
-      this.playTactileSound(650);
+      this.playLoudTone(700);
     });
-    this.btnRemovePhoto.addEventListener('click', () => {
-      this.clearPhotoPreview();
-    });
+    this.btnRemovePhoto.addEventListener('click', () => this.clearPhotoPreview());
 
     // Save Entry Submission
     this.btnSubmitEntry.addEventListener('click', () => this.submitLogEntry());
@@ -138,15 +155,16 @@ class SunLogApp {
     // Manual Sync Button
     this.btnManualSync.addEventListener('click', () => {
       if (!window.sunLogSync.isOnline()) {
-        this.showToast('⚠️ Cannot sync: App is currently Offline');
+        this.showToast('⚠️ App is currently offline');
+        this.playLoudTone(250);
         return;
       }
       this.btnManualSync.classList.add('syncing-spin');
-      this.showToast('🔄 Syncing queued logs...');
+      this.showToast('🔄 Syncing logs...');
       window.sunLogSync.processQueue();
     });
 
-    // Listen to Sync Engine events
+    // Sync Engine Events
     window.sunLogSync.onStatusChange((status) => this.updateNetworkUI(status));
 
     window.addEventListener('sunlog:entry-updated', (e) => {
@@ -157,7 +175,7 @@ class SunLogApp {
     window.addEventListener('sunlog:entry-synced', (e) => {
       this.updateEntryCardState(e.detail, true);
       this.updateStats();
-      this.playTactileSound(880);
+      this.playLoudTone(880);
     });
 
     window.addEventListener('sunlog:sync-complete', () => {
@@ -167,33 +185,42 @@ class SunLogApp {
   }
 
   /* ========================================================================
-     THEMING & SUN MODE
+     SOLAR GLARE THEME CONTROLLER
      ======================================================================== */
   initTheme() {
-    const savedTheme = localStorage.getItem('sunlog_theme');
-    if (savedTheme === 'sun-mode') {
-      document.body.classList.add('sun-mode');
-      this.updateSunModeButtonText(true);
-    } else {
-      this.updateSunModeButtonText(false);
+    const savedTheme = localStorage.getItem('solaris_glare_theme') || 'theme-solar-amber';
+    this.setGlareTheme(savedTheme, false);
+
+    const savedFont = localStorage.getItem('solaris_font_scale');
+    if (savedFont === 'large') {
+      this.isLargeFont = true;
+      document.body.classList.add('font-large');
+      this.fontScaleText.textContent = 'A- NORMAL';
     }
   }
 
-  toggleSunMode() {
-    const isSun = document.body.classList.toggle('sun-mode');
-    localStorage.setItem('sunlog_theme', isSun ? 'sun-mode' : 'standard');
-    this.updateSunModeButtonText(isSun);
-    this.playTactileSound(isSun ? 750 : 450);
-    this.showToast(isSun ? '☀️ Sun Mode Enabled (High Contrast)' : '🌙 Standard Mode Enabled');
-  }
+  setGlareTheme(themeClass, notify = true) {
+    document.body.classList.remove('theme-solar-amber', 'theme-solar-bright', 'theme-standard');
+    document.body.classList.add(themeClass);
 
-  updateSunModeButtonText(isSun) {
-    if (isSun) {
-      this.sunModeIcon.textContent = '🌙';
-      this.sunModeText.textContent = 'NORMAL MODE';
-    } else {
-      this.sunModeIcon.textContent = '☀️';
-      this.sunModeText.textContent = 'SUN MODE';
+    this.glareTabs.forEach(tab => {
+      if (tab.dataset.theme === themeClass) {
+        tab.classList.add('active');
+      } else {
+        tab.classList.remove('active');
+      }
+    });
+
+    localStorage.setItem('solaris_glare_theme', themeClass);
+
+    if (notify) {
+      if (themeClass === 'theme-solar-amber') {
+        this.showToast('⚡ Glare Mode: Solar Amber (Pure Black + Yellow)');
+      } else if (themeClass === 'theme-solar-bright') {
+        this.showToast('☀️ Glare Mode: Day-White (Anti-Mirror Reflection)');
+      } else {
+        this.showToast('🛡️ Glare Mode: Industrial Dark');
+      }
     }
   }
 
@@ -206,7 +233,7 @@ class SunLogApp {
       this.netStatusText.textContent = status.isSyncing ? 'SYNCING QUEUE...' : 'ONLINE';
     } else {
       this.netStatusDot.className = 'status-dot offline';
-      this.netStatusText.textContent = status.isSimulated ? 'OFFLINE (Simulated)' : 'OFFLINE (No Network)';
+      this.netStatusText.textContent = status.isSimulated ? 'OFFLINE (Simulated)' : 'OFFLINE (No Signal)';
     }
 
     if (status.isSimulated) {
@@ -230,11 +257,11 @@ class SunLogApp {
         category: 'safety',
         categoryLabel: 'Safety Issue',
         categoryIcon: '⚠️',
-        categoryColor: '#ffb703',
-        notes: 'Emergency exit corridor in Sector 4 blocked with pallet crates. Cleared pathway and flagged.',
+        categoryColor: '#ffea00',
+        notes: 'Emergency exit corridor in Sector 4 blocked with pallet crates. Cleared pathway and flagged perimeter.',
         location: 'Sector 4 - Exit B',
         photo: SAMPLE_PHOTO_DATA,
-        timestamp: now - (1000 * 60 * 25), // 25 mins ago
+        timestamp: now - (1000 * 60 * 25),
         createdAtFormatted: new Date(now - (1000 * 60 * 25)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         syncStatus: 'synced',
         syncedAt: now - (1000 * 60 * 24)
@@ -245,11 +272,11 @@ class SunLogApp {
         category: 'equipment',
         categoryLabel: 'Equipment Fault',
         categoryIcon: '⚙️',
-        categoryColor: '#fb8500',
-        notes: 'Forklift #FL-402 showing intermittent hydraulic pressure drop during lift cycle. Tagged out of service.',
+        categoryColor: '#ff7700',
+        notes: 'Forklift #FL-402 showing intermittent hydraulic pressure drop during heavy pallet lift cycle.',
         location: 'Warehouse Bay 3',
-        photo: SAMPLE_FORKLIFT_PHOTO,
-        timestamp: now - (1000 * 60 * 5), // 5 mins ago
+        photo: SAMPLE_EQUIPMENT_PHOTO,
+        timestamp: now - (1000 * 60 * 5),
         createdAtFormatted: new Date(now - (1000 * 60 * 5)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         syncStatus: 'queued',
         syncedAt: null
@@ -274,10 +301,9 @@ class SunLogApp {
     this.modalOverlay.classList.add('open');
     this.logNotes.value = '';
     this.clearPhotoPreview();
-    // Default location
     this.logLocation.value = 'Zone B - Active Site';
     setTimeout(() => this.logNotes.focus(), 150);
-    this.playTactileSound(500);
+    this.playLoudTone(520);
   }
 
   closeModal() {
@@ -293,10 +319,9 @@ class SunLogApp {
           const lng = pos.coords.longitude.toFixed(4);
           this.logLocation.value = `Site GPS (${lat}, ${lng})`;
           this.btnGps.innerHTML = '<span>📍</span> GPS';
-          this.showToast('📍 GPS Coordinates Attached');
+          this.showToast('📍 GPS Attached');
         },
-        (err) => {
-          // Fallback zone
+        () => {
           const zones = ['Zone A - East Gate', 'Zone B - Staging', 'Dock 3 - Loading', 'Zone C - Perimeter'];
           const rand = zones[Math.floor(Math.random() * zones.length)];
           this.logLocation.value = rand;
@@ -339,6 +364,7 @@ class SunLogApp {
     if (!notes) {
       this.showToast('⚠️ Please enter observation notes');
       this.logNotes.focus();
+      this.playLoudTone(250);
       return;
     }
 
@@ -354,34 +380,30 @@ class SunLogApp {
       photo: this.currentPhotoData,
       timestamp: now,
       createdAtFormatted: new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      syncStatus: 'queued', // Always saved offline first!
+      syncStatus: 'queued',
       syncedAt: null
     };
 
     // Instant Save to IndexedDB
     await window.sunLogDB.addLog(entry);
 
-    // Haptic & Sound Feedback
     if ('vibrate' in navigator) {
-      navigator.vibrate([40, 30, 40]);
+      navigator.vibrate([60, 40, 60]);
     }
-    this.playTactileSound(600);
+    this.playLoudTone(680);
 
-    // Close Modal
     this.closeModal();
-    this.showToast('📋 Log saved to device (Queued)');
+    this.showToast('📋 Log saved offline (Queued)');
 
-    // Refresh Feed immediately
     await this.renderFeed();
 
-    // Trigger sync engine if online
     if (window.sunLogSync.isOnline()) {
       window.sunLogSync.processQueue();
     }
   }
 
   /* ========================================================================
-     FEED RENDERING & CARD STATE UPDATES
+     FEED RENDERING
      ======================================================================== */
   async renderFeed() {
     const logs = await window.sunLogDB.getAllLogs();
@@ -420,7 +442,7 @@ class SunLogApp {
     } else if (entry.syncStatus === 'syncing') {
       syncBadgeHtml = `<span class="sync-badge badge-syncing" id="badge-${entry.id}">Syncing... 🔄</span>`;
     } else {
-      syncBadgeHtml = `<span class="sync-badge badge-queued" id="badge-${entry.id}">Queued — will sync ⏳</span>`;
+      syncBadgeHtml = `<span class="sync-badge badge-queued" id="badge-${entry.id}">Queued ⏳</span>`;
     }
 
     const photoHtml = entry.photo ? `
@@ -468,7 +490,7 @@ class SunLogApp {
         badge.textContent = 'Syncing... 🔄';
       } else {
         badge.className = 'sync-badge badge-queued';
-        badge.textContent = 'Queued — will sync ⏳';
+        badge.textContent = 'Queued ⏳';
       }
     }
 
@@ -479,9 +501,8 @@ class SunLogApp {
   }
 
   bindCardInteractions() {
-    // Click on attached photo opens lightbox
     document.querySelectorAll('.entry-photo-preview').forEach(el => {
-      el.addEventListener('click', (e) => {
+      el.addEventListener('click', () => {
         const img = el.querySelector('img');
         if (img) {
           this.lightboxImg.src = img.src;
@@ -505,23 +526,23 @@ class SunLogApp {
   }
 
   /* ========================================================================
-     TOAST & AUDIO/HAPTIC HELPERS
+     HIGH-CONTRAST TOAST & LOUD SENSORY AUDIO
      ======================================================================== */
-  showToast(message, duration = 3000) {
+  showToast(message, duration = 3200) {
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
     this.toastContainer.appendChild(toast);
 
     setTimeout(() => {
-      toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      toast.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(-10px)';
-      setTimeout(() => toast.remove(), 300);
+      setTimeout(() => toast.remove(), 250);
     }, duration);
   }
 
-  playTactileSound(freq = 600) {
+  playLoudTone(freq = 600) {
     try {
       if (!this.audioContext) {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -535,15 +556,15 @@ class SunLogApp {
         const gain = this.audioContext.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, this.audioContext.currentTime);
-        gain.gain.setValueAtTime(0.08, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.1);
         osc.connect(gain);
         gain.connect(this.audioContext.destination);
         osc.start();
-        osc.stop(this.audioContext.currentTime + 0.08);
+        osc.stop(this.audioContext.currentTime + 0.1);
       }
     } catch (e) {
-      // Audio not supported or blocked, graceful ignore
+      // Audio fallback
     }
   }
 
@@ -558,14 +579,13 @@ class SunLogApp {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SunLog ServiceWorker active:', reg.scope))
+          .then(reg => console.log('Solaris ServiceWorker active:', reg.scope))
           .catch(err => console.log('ServiceWorker registration skipped:', err));
       });
     }
   }
 }
 
-// Bootstrap Application on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
-  window.sunLogApp = new SunLogApp();
+  window.solarisApp = new SolarisApp();
 });

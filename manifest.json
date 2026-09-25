@@ -1,15 +1,15 @@
 {
-  "name": "SunLog - Field Logger",
-  "short_name": "SunLog",
-  "description": "High-contrast offline field incident & compliance logging tool",
+  "name": "Solaris - High Glare Field Logger",
+  "short_name": "Solaris",
+  "description": "Ultra high-contrast outdoor field compliance and incident logger designed for direct solar glare",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0a0d12",
-  "theme_color": "#ffb703",
+  "background_color": "#000000",
+  "theme_color": "#ffea00",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23ffb703'/><path d='M256 96v40M256 376v40M96 256h40M376 256h40M143 143l28 28M341 341l28 28M143 369l28-28M341 171l28-28' stroke='%23000' stroke-width='36' stroke-linecap='round'/><circle cx='256' cy='256' r='75' fill='%23000'/></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23000000'/><circle cx='256' cy='256' r='180' fill='%23ffea00'/><path d='M256 30v70M256 412v70M30 256h70M412 256h70M96 96l50 50M366 366l50 50M96 416l50-50M366 146l50-50' stroke='%23ffea00' stroke-width='40' stroke-linecap='round'/><circle cx='256' cy='256' r='110' fill='%23000000'/><path d='M256 180v76l55 35' stroke='%23ffea00' stroke-width='24' stroke-linecap='round'/></svg>",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml"
     }

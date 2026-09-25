@@ -3,53 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0d1117">
-  <meta name="description" content="SunLog - Direct sunlight high-contrast field compliance and incident logging tool">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Solaris - High-glare outdoor field compliance and incident logger designed for direct solar glare">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>SunLog | Field Incident & Compliance Logger</title>
+  <title>Solaris | Field Incident & Compliance Logger</title>
   
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./css/style.css">
 </head>
-<body>
+<body class="theme-solar-amber">
   <div id="app-root">
     
-    <!-- Top Header & Connectivity Strip -->
+    <!-- Top Header & Solar Glare Control Bar -->
     <header class="app-header">
       <div class="header-top-row">
         <div class="brand-container">
           <div class="brand-icon">☀️</div>
           <div>
-            <h1 class="brand-title">SunLog</h1>
-            <span class="brand-tag">Field Compliance</span>
+            <h1 class="brand-title">SOLARIS</h1>
+            <span class="brand-subtitle">Field Glare Logger</span>
           </div>
         </div>
 
         <div class="header-actions">
-          <!-- Direct Sunlight High-Contrast Toggle -->
-          <button id="btn-sun-mode" class="btn-sun-toggle" aria-label="Toggle Sun Mode">
-            <span id="sun-mode-icon">☀️</span>
-            <span id="sun-mode-text">SUN MODE</span>
+          <!-- Text Zoom Toggle -->
+          <button id="btn-font-scale" class="btn-font-scale" title="Toggle Large Text for Glare" aria-label="Toggle Font Size">
+            <span id="font-scale-text">A+ ZOOM</span>
           </button>
         </div>
       </div>
 
-      <!-- Network Status Strip with Simulation Toggle -->
+      <!-- Quick Glare Switcher (Engineered for bad phone screens in blinding sunlight) -->
+      <div class="glare-selector-strip" role="radiogroup" aria-label="Solar Glare Mode">
+        <button class="glare-tab active" data-theme="theme-solar-amber" id="tab-solar-amber" title="Pure Black with High-Vis Amber & White">
+          <span>⚡ AMBER</span>
+        </button>
+        <button class="glare-tab" data-theme="theme-solar-bright" id="tab-solar-bright" title="Anti-Mirror High-Luminance White">
+          <span>☀️ DAY-WHITE</span>
+        </button>
+        <button class="glare-tab" data-theme="theme-standard" id="tab-standard" title="Standard Industrial Dark">
+          <span>🛡️ DARK</span>
+        </button>
+      </div>
+
+      <!-- Network Status & Offline Simulation Strip -->
       <div class="status-bar-strip">
         <div class="network-pill" id="network-status-indicator">
           <span class="status-dot" id="network-status-dot"></span>
           <span id="network-status-text">ONLINE</span>
         </div>
 
-        <button id="btn-toggle-offline-sim" class="btn-sim-toggle" title="Toggle Simulated Offline State">
+        <button id="btn-toggle-offline-sim" class="btn-sim-toggle" title="Toggle Simulated Offline Mode">
           <span id="sim-toggle-icon">⚡</span>
           <span id="sim-toggle-text">Simulate Offline</span>
         </button>
       </div>
     </header>
 
-    <!-- Quick Stat Summary Row -->
+    <!-- High-Contrast Metric Block Summary -->
     <section class="quick-stats-bar" aria-label="Sync Summary">
       <div class="stat-box">
         <div class="stat-value queued-count" id="stat-queued">0</div>
@@ -69,7 +81,7 @@
     <main class="feed-section">
       <div class="feed-header">
         <h2 class="feed-title">Field Log Stream</h2>
-        <span id="feed-filter-count" style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">Showing All</span>
+        <span id="feed-filter-count" style="font-size: 14px; font-weight: 900; color: var(--text-secondary);">ALL ENTRIES</span>
       </div>
 
       <!-- Entries Container -->
@@ -78,11 +90,11 @@
       </div>
     </main>
 
-    <!-- Fixed Thumb-Zone Bottom Action Bar -->
+    <!-- Sticky Bottom Action Bar (Thumb-Zone Optimized) -->
     <nav class="bottom-bar">
       <div class="bottom-bar-inner">
         <button id="btn-open-log-modal" class="btn-huge-action" aria-haspopup="dialog">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
@@ -90,7 +102,7 @@
         </button>
 
         <button id="btn-manual-sync" class="btn-sync-trigger" title="Sync Queue Now" aria-label="Sync Queue Now">
-          <svg id="sync-icon-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg id="sync-icon-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
           </svg>
         </button>
@@ -115,42 +127,42 @@
             <label class="form-label">1. Select Category</label>
             <div class="category-grid" id="category-grid" role="radiogroup" aria-label="Log Category">
               
-              <button type="button" class="category-tile selected" data-category="safety" data-icon="⚠️" data-label="Safety Issue" data-color="#ffb703" role="radio" aria-checked="true">
+              <button type="button" class="category-tile selected" data-category="safety" data-icon="⚠️" data-label="Safety Issue" data-color="#ffea00" role="radio" aria-checked="true">
                 <span class="category-tile-icon">⚠️</span>
                 <span class="category-tile-name">Safety Issue</span>
               </button>
 
-              <button type="button" class="category-tile" data-category="equipment" data-icon="⚙️" data-label="Equipment Fault" data-color="#fb8500" role="radio" aria-checked="false">
+              <button type="button" class="category-tile" data-category="equipment" data-icon="⚙️" data-label="Equipment Fault" data-color="#ff7700" role="radio" aria-checked="false">
                 <span class="category-tile-icon">⚙️</span>
                 <span class="category-tile-name">Equipment Fault</span>
               </button>
 
-              <button type="button" class="category-tile" data-category="incident" data-icon="🚨" data-label="Incident / Injury" data-color="#ef476f" role="radio" aria-checked="false">
+              <button type="button" class="category-tile" data-category="incident" data-icon="🚨" data-label="Incident / Injury" data-color="#ff1744" role="radio" aria-checked="false">
                 <span class="category-tile-icon">🚨</span>
                 <span class="category-tile-name">Incident</span>
               </button>
 
-              <button type="button" class="category-tile" data-category="check" data-icon="✅" data-label="Check Complete" data-color="#06d6a0" role="radio" aria-checked="false">
+              <button type="button" class="category-tile" data-category="check" data-icon="✅" data-label="Check Complete" data-color="#00e676" role="radio" aria-checked="false">
                 <span class="category-tile-icon">✅</span>
                 <span class="category-tile-name">Check Complete</span>
               </button>
 
-              <button type="button" class="category-tile" data-category="hazard" data-icon="🚧" data-label="Hazard / Near Miss" data-color="#ffd166" role="radio" aria-checked="false">
+              <button type="button" class="category-tile" data-category="hazard" data-icon="🚧" data-label="Hazard Area" data-color="#ffea00" role="radio" aria-checked="false">
                 <span class="category-tile-icon">🚧</span>
                 <span class="category-tile-name">Hazard Area</span>
               </button>
 
-              <button type="button" class="category-tile" data-category="delivery" data-icon="📦" data-label="Material / Delivery" data-color="#118ab2" role="radio" aria-checked="false">
+              <button type="button" class="category-tile" data-category="delivery" data-icon="📦" data-label="Material / Delivery" data-color="#00e5ff" role="radio" aria-checked="false">
                 <span class="category-tile-icon">📦</span>
-                <span class="category-tile-name">Material / Delivery</span>
+                <span class="category-tile-name">Delivery / Stock</span>
               </button>
 
             </div>
           </div>
 
-          <!-- Quick Notes Suggestions -->
+          <!-- Quick Phrases Suggestions -->
           <div>
-            <label class="form-label">Quick Phrases</label>
+            <label class="form-label">Quick Field Phrases</label>
             <div class="quick-chips-row">
               <button type="button" class="quick-chip" data-text="Tripping hazard identified and flagged">⚠️ Tripping hazard</button>
               <button type="button" class="quick-chip" data-text="Forklift hydraulic leak observed">⚙️ Hydraulic leak</button>
@@ -163,12 +175,12 @@
           <!-- Note Textarea -->
           <div>
             <label for="log-notes" class="form-label">2. Notes & Observation</label>
-            <textarea id="log-notes" class="note-textarea" placeholder="Describe the condition, location detail, or corrective action taken..." required rows="3"></textarea>
+            <textarea id="log-notes" class="note-textarea" placeholder="Describe the condition, location detail, or corrective action..." required rows="3"></textarea>
           </div>
 
           <!-- Location Field -->
           <div>
-            <label for="log-location" class="form-label">3. Location / Zone</label>
+            <label for="log-location" class="form-label">3. Location / Site Zone</label>
             <div class="location-input-group">
               <input type="text" id="log-location" class="location-input" placeholder="e.g. Zone B - Dock 4" value="Zone B - Dock 4">
               <button type="button" id="btn-gps" class="btn-gps-auto">
@@ -214,7 +226,7 @@
       <img id="lightbox-img" src="" alt="Full view preview">
     </div>
 
-    <!-- Toast Notifications -->
+    <!-- High-Contrast Toast Notifications -->
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
   </div>
