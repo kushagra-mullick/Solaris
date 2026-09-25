@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="SunLog - Direct sunlight high-contrast field compliance and incident logging tool">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SunLog | Field Incident & Compliance Logger</title>
+  
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div id="app-root">
+    
+    <!-- Top Header & Connectivity Strip -->
+    <header class="app-header">
+      <div class="header-top-row">
+        <div class="brand-container">
+          <div class="brand-icon">☀️</div>
+          <div>
+            <h1 class="brand-title">SunLog</h1>
+            <span class="brand-tag">Field Compliance</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Direct Sunlight High-Contrast Toggle -->
+          <button id="btn-sun-mode" class="btn-sun-toggle" aria-label="Toggle Sun Mode">
+            <span id="sun-mode-icon">☀️</span>
+            <span id="sun-mode-text">SUN MODE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Network Status Strip with Simulation Toggle -->
+      <div class="status-bar-strip">
+        <div class="network-pill" id="network-status-indicator">
+          <span class="status-dot" id="network-status-dot"></span>
+          <span id="network-status-text">ONLINE</span>
+        </div>
+
+        <button id="btn-toggle-offline-sim" class="btn-sim-toggle" title="Toggle Simulated Offline State">
+          <span id="sim-toggle-icon">⚡</span>
+          <span id="sim-toggle-text">Simulate Offline</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Stat Summary Row -->
+    <section class="quick-stats-bar" aria-label="Sync Summary">
+      <div class="stat-box">
+        <div class="stat-value queued-count" id="stat-queued">0</div>
+        <div class="stat-label">Queued Sync</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value synced-count" id="stat-synced">0</div>
+        <div class="stat-label">Synced</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Total Logs</div>
+      </div>
+    </section>
+
+    <!-- Main Feed: All logged entries (newest first) -->
+    <main class="feed-section">
+      <div class="feed-header">
+        <h2 class="feed-title">Field Log Stream</h2>
+        <span id="feed-filter-count" style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">Showing All</span>
+      </div>
+
+      <!-- Entries Container -->
+      <div id="entries-list" class="entries-list" role="feed">
+        <!-- Rendered dynamically -->
+      </div>
+    </main>
+
+    <!-- Fixed Thumb-Zone Bottom Action Bar -->
+    <nav class="bottom-bar">
+      <div class="bottom-bar-inner">
+        <button id="btn-open-log-modal" class="btn-huge-action" aria-haspopup="dialog">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>NEW LOG ENTRY</span>
+        </button>
+
+        <button id="btn-manual-sync" class="btn-sync-trigger" title="Sync Queue Now" aria-label="Sync Queue Now">
+          <svg id="sync-icon-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- New Log Entry Slide-up Modal Sheet -->
+    <div id="log-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title-heading">
+      <div class="modal-sheet">
+        
+        <div class="modal-header">
+          <h2 id="modal-title-heading" class="modal-title">
+            <span>📝</span> New Field Log
+          </h2>
+          <button id="btn-close-modal" class="btn-close-modal" aria-label="Close Dialog">&times;</button>
+        </div>
+
+        <form id="log-entry-form" class="modal-body" onsubmit="return false;">
+          
+          <!-- Category Selector (Icon Grid) -->
+          <div>
+            <label class="form-label">1. Select Category</label>
+            <div class="category-grid" id="category-grid" role="radiogroup" aria-label="Log Category">
+              
+              <button type="button" class="category-tile selected" data-category="safety" data-icon="⚠️" data-label="Safety Issue" data-color="#ffb703" role="radio" aria-checked="true">
+                <span class="category-tile-icon">⚠️</span>
+                <span class="category-tile-name">Safety Issue</span>
+              </button>
+
+              <button type="button" class="category-tile" data-category="equipment" data-icon="⚙️" data-label="Equipment Fault" data-color="#fb8500" role="radio" aria-checked="false">
+                <span class="category-tile-icon">⚙️</span>
+                <span class="category-tile-name">Equipment Fault</span>
+              </button>
+
+              <button type="button" class="category-tile" data-category="incident" data-icon="🚨" data-label="Incident / Injury" data-color="#ef476f" role="radio" aria-checked="false">
+                <span class="category-tile-icon">🚨</span>
+                <span class="category-tile-name">Incident</span>
+              </button>
+
+              <button type="button" class="category-tile" data-category="check" data-icon="✅" data-label="Check Complete" data-color="#06d6a0" role="radio" aria-checked="false">
+                <span class="category-tile-icon">✅</span>
+                <span class="category-tile-name">Check Complete</span>
+              </button>
+
+              <button type="button" class="category-tile" data-category="hazard" data-icon="🚧" data-label="Hazard / Near Miss" data-color="#ffd166" role="radio" aria-checked="false">
+                <span class="category-tile-icon">🚧</span>
+                <span class="category-tile-name">Hazard Area</span>
+              </button>
+
+              <button type="button" class="category-tile" data-category="delivery" data-icon="📦" data-label="Material / Delivery" data-color="#118ab2" role="radio" aria-checked="false">
+                <span class="category-tile-icon">📦</span>
+                <span class="category-tile-name">Material / Delivery</span>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Quick Notes Suggestions -->
+          <div>
+            <label class="form-label">Quick Phrases</label>
+            <div class="quick-chips-row">
+              <button type="button" class="quick-chip" data-text="Tripping hazard identified and flagged">⚠️ Tripping hazard</button>
+              <button type="button" class="quick-chip" data-text="Forklift hydraulic leak observed">⚙️ Hydraulic leak</button>
+              <button type="button" class="quick-chip" data-text="Routine perimeter safety inspection completed">✅ Perimeter checked</button>
+              <button type="button" class="quick-chip" data-text="Fire extinguisher inspection seal verified">🧯 Extinguisher OK</button>
+              <button type="button" class="quick-chip" data-text="Worker observed without hardhat in Zone 3">👷 PPE violation</button>
+            </div>
+          </div>
+
+          <!-- Note Textarea -->
+          <div>
+            <label for="log-notes" class="form-label">2. Notes & Observation</label>
+            <textarea id="log-notes" class="note-textarea" placeholder="Describe the condition, location detail, or corrective action taken..." required rows="3"></textarea>
+          </div>
+
+          <!-- Location Field -->
+          <div>
+            <label for="log-location" class="form-label">3. Location / Zone</label>
+            <div class="location-input-group">
+              <input type="text" id="log-location" class="location-input" placeholder="e.g. Zone B - Dock 4" value="Zone B - Dock 4">
+              <button type="button" id="btn-gps" class="btn-gps-auto">
+                <span>📍</span> GPS
+              </button>
+            </div>
+          </div>
+
+          <!-- Photo Attachment -->
+          <div class="photo-uploader">
+            <label class="form-label">4. Photo Evidence (Optional)</label>
+            
+            <div id="photo-preview-container" class="photo-preview-wrap">
+              <img id="photo-preview-img" src="" alt="Attached Evidence Preview">
+              <button type="button" id="btn-remove-photo" class="btn-remove-photo" title="Remove Photo">&times;</button>
+            </div>
+
+            <div class="photo-action-buttons">
+              <label for="camera-file-input" class="btn-photo-trigger">
+                <span>📷</span> Take Photo / Upload
+              </label>
+              <input type="file" id="camera-file-input" accept="image/*" capture="environment" style="display: none;">
+
+              <button type="button" id="btn-sample-photo" class="btn-photo-trigger" title="Attach Demo Photo">
+                <span>🖼️</span> Demo Photo
+              </button>
+            </div>
+          </div>
+
+        </form>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-submit-entry" class="btn-submit-log">
+            <span>💾</span> SAVE LOG ENTRY
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Lightbox Modal for Photo Inspection -->
+    <div id="lightbox-modal" class="lightbox-modal" onclick="this.classList.remove('open')">
+      <img id="lightbox-img" src="" alt="Full view preview">
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="./js/db.js"></script>
+  <script src="./js/sync.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

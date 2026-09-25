@@ -1,0 +1,17 @@
+{
+  "name": "SunLog - Field Logger",
+  "short_name": "SunLog",
+  "description": "High-contrast offline field incident & compliance logging tool",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0d12",
+  "theme_color": "#ffb703",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23ffb703'/><path d='M256 96v40M256 376v40M96 256h40M376 256h40M143 143l28 28M341 341l28 28M143 369l28-28M341 171l28-28' stroke='%23000' stroke-width='36' stroke-linecap='round'/><circle cx='256' cy='256' r='75' fill='%23000'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
