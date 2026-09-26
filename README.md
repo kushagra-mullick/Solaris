@@ -138,6 +138,7 @@ The application will be live at:
 - Kushagra Mullick
 - Vraj Pandit 
 - Yashovardhan Singh
+- Aryan Goenka
 
 
 ---
