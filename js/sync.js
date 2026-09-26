@@ -1,11 +1,10 @@
 /**
  * SunLog - Sync Engine & Connectivity Monitor
- * Manages network status, mock offline simulation, and sync dispatch.
+ * Manages network status and sync dispatch.
  */
 
 class SunLogSync {
   constructor() {
-    this.isSimulatedOffline = false;
     this.isSyncing = false;
     this.listeners = [];
     this.lastSyncTime = null;
@@ -23,21 +22,7 @@ class SunLogSync {
   }
 
   isOnline() {
-    if (this.isSimulatedOffline) return false;
     return navigator.onLine;
-  }
-
-  setSimulatedOffline(status) {
-    this.isSimulatedOffline = status;
-    this.notifyStatusChange();
-    if (this.isOnline()) {
-      this.processQueue();
-    }
-  }
-
-  toggleOfflineSimulation() {
-    this.setSimulatedOffline(!this.isSimulatedOffline);
-    return this.isSimulatedOffline;
   }
 
   onStatusChange(callback) {
@@ -47,7 +32,6 @@ class SunLogSync {
   notifyStatusChange() {
     const status = {
       isOnline: this.isOnline(),
-      isSimulated: this.isSimulatedOffline,
       isSyncing: this.isSyncing,
       lastSyncTime: this.lastSyncTime
     };

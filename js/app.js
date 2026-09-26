@@ -33,9 +33,7 @@ class SolarisApp {
     this.btnFontScale = document.getElementById('btn-font-scale');
     this.fontScaleText = document.getElementById('font-scale-text');
 
-    // Network & Simulation
-    this.btnToggleOfflineSim = document.getElementById('btn-toggle-offline-sim');
-    this.simToggleText = document.getElementById('sim-toggle-text');
+    // Network Status
     this.netStatusDot = document.getElementById('network-status-dot');
     this.netStatusText = document.getElementById('network-status-text');
 
@@ -88,13 +86,6 @@ class SolarisApp {
       localStorage.setItem('solaris_font_scale', this.isLargeFont ? 'large' : 'normal');
       this.playLoudTone(this.isLargeFont ? 800 : 450);
       this.showToast(this.isLargeFont ? '🔍 Text Zoom (120% Glare Readability)' : 'Standard Text Size');
-    });
-
-    // Offline Simulation Toggle
-    this.btnToggleOfflineSim.addEventListener('click', () => {
-      const isSim = window.sunLogSync.toggleOfflineSimulation();
-      this.playLoudTone(isSim ? 320 : 750);
-      this.showToast(isSim ? '🔴 Simulated Offline Mode Active' : '🟢 Back Online — Syncing Queue');
     });
 
     // Modal Sheet Open / Close
@@ -233,15 +224,7 @@ class SolarisApp {
       this.netStatusText.textContent = status.isSyncing ? 'SYNCING QUEUE...' : 'ONLINE';
     } else {
       this.netStatusDot.className = 'status-dot offline';
-      this.netStatusText.textContent = status.isSimulated ? 'OFFLINE (Simulated)' : 'OFFLINE (No Signal)';
-    }
-
-    if (status.isSimulated) {
-      this.btnToggleOfflineSim.classList.add('is-simulating');
-      this.simToggleText.textContent = 'Go Online';
-    } else {
-      this.btnToggleOfflineSim.classList.remove('is-simulating');
-      this.simToggleText.textContent = 'Simulate Offline';
+      this.netStatusText.textContent = 'OFFLINE (No Signal)';
     }
   }
 
@@ -289,7 +272,6 @@ class SolarisApp {
     await this.renderFeed();
     this.updateNetworkUI({
       isOnline: window.sunLogSync.isOnline(),
-      isSimulated: window.sunLogSync.isSimulatedOffline,
       isSyncing: false
     });
   }
