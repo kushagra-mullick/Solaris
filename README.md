@@ -157,17 +157,10 @@ The application will be live at:
 
 ---
 
-<<<<<<< HEAD
-## 📋 Bit N Build Dubai Submission Checklist
-
-- [x] **Comprehensive README.md** with problem statement, architecture, tech stack & setup instructions.
-- [x] **Zero-dependency, offline-ready codebase** tested and functional.
-- [ ] **Demo Video (< 2 minutes)** uploaded to YouTube or Google Drive (Set to *Anyone with link can view*).
-- [ ] **Repository Link & Video Link** submitted before Saturday 11:59 PM.
+## 📋 Team Members
+- Kushagra Mullick
 
 ---
 
-=======
->>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
 ## 📄 License
 MIT License. Built for field workers everywhere.
