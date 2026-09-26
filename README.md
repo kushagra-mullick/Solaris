@@ -136,6 +136,8 @@ The application will be live at:
 
 ## 📋 Team Members
 - Kushagra Mullick
+- Vraj Pandit 
+
 
 ---
 
