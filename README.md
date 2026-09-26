@@ -45,13 +45,8 @@ Most field logging applications fail before a worker even types a single word be
 │ CLIENT BROWSER (100% Offline via Service Worker)                                │
 │                                                                                 │
 │  1. App Shell served from local Cache Storage (`sw.js`)                         │
-<<<<<<< HEAD
-│  2. Entry written to browser-native IndexedDB (`SunLogDB`)                     │
-│  3. Status flagged immediately as [ QUEUED ⏳ ]                                 │
-=======
 │  2. Entry written to browser-native IndexedDB (`SunLogDB`)                      │
-│  3. Status flagged immediately as [ QUEUED ⏳]                                  |
->>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
+│  3. Status flagged immediately as [ QUEUED ⏳ ]                                 │
 │  4. UI updates instantly with Web Audio chime + Vibration confirmation          │
 └────────────────────────────────────────┬────────────────────────────────────────┘
                                          │
@@ -89,10 +84,6 @@ Built specifically for cheap smartphone LCD panels under direct sunlight:
 ### 2. 📴 Offline-First Engine (IndexedDB)
 * Saves logs, GPS/site tags, and photo evidence immediately into local **IndexedDB** (`SunLogDB`).
 * Every offline log receives a high-contrast **`[ QUEUED ⏳ ]`** badge.
-<<<<<<< HEAD
-=======
-* Includes a **"Simulate Offline"** switch in the top bar to easily demonstrate offline workflows live on stage or in demo videos.
->>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
 
 ### 3. 🔄 Automatic Background Sync
 * Monitors `navigator.onLine` and network status events.
@@ -105,26 +96,7 @@ Built specifically for cheap smartphone LCD panels under direct sunlight:
 * **Photo Attachment:** Instant capture/upload with live preview and demo photo generator.
 * **Multi-Sensory Audio & Haptic Cues:** Synthesized Web Audio tones and vibration patterns (`navigator.vibrate`) give immediate sensory confirmation without needing to squint at the screen.
 
-<<<<<<< HEAD
 ---
-
-## 🎬 The 60-Second Hackathon Demo Script
-
-1. **The Setup:** Open Solaris on a mobile phone (or simulator) at max screen brightness.
-2. **Go Offline:** Disconnect network (or turn on Airplane Mode).
-3. **Log One-Handed:**
-   - Tap the giant **`+ NEW LOG ENTRY`** button at the bottom.
-   - Tap **"⚠️ Safety Issue"** from the icon grid.
-   - Tap a quick phrase: *"Tripping hazard identified and flagged"*.
-   - Tap **"🖼️ Demo Photo"** (or take a photo).
-   - Tap **"💾 SAVE LOG ENTRY"** — hear the audio chime and see the log appear instantly at the top with `Queued ⏳`.
-4. **The Reconnect:** Turn off Airplane Mode (reconnect network).
-5. **The Magic:** Watch the queue worker automatically process the entry and flip the badge to **`Synced ✅`** with a green flash.
-6. **The Glare Buster:** Tap **`☀️ DAY-WHITE`** and **`A+ ZOOM`** to demonstrate high-contrast solar visibility for outdoor workers.
-
----
-=======
->>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
 
 ## 🛠️ Technology Stack
 
