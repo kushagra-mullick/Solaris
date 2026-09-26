@@ -2,12 +2,11 @@
 > **High-Glare, Zero-Signal Field Compliance & Incident Logging Tool**  
 > *Built for Bit N Build Dubai 2026* 🇦🇪
 
-[![Demo Video](https://img.shields.io/badge/▶%EF%B8%8E%20Watch-Demo%20Video%20(2%20min)-FFEA00?style=for-the-badge&logo=youtube&logoColor=000000)](https://youtu.be/YOUR_DEMO_VIDEO_LINK_HERE)
+[![Demo Video](https://img.shields.io/badge/▶%EF%B8%8E%20Watch-Demo%20Video%20(2%20min)-FFEA00?style=for-the-badge&logo=youtube&logoColor=000000)](https://drive.google.com/file/d/1zfhHFqYoha2quhGaSOGdbrlYXP8Va-5_/view?usp=sharing)
 [![License: MIT](https://img.shields.io/badge/License-MIT-white?style=for-the-badge)](LICENSE)
 [![PWA Ready](https://img.shields.io/badge/PWA-Offline%20First-00E676?style=for-the-badge)](manifest.json)
 
-> 🎥 **Demo Video Link:** [Click here to watch the 2-Minute Demo](https://youtu.be/YOUR_DEMO_VIDEO_LINK_HERE) *(Ensure Google Drive links are set to "Anyone with the link can view")*
-
+> 🎥 **Demo Video Link:** [Click here to watch the 2-Minute Demo]([https://github.com/kushagra-mullick/Solaris/blob/main/README.md](https://drive.google.com/file/d/1zfhHFqYoha2quhGaSOGdbrlYXP8Va-5_/view?usp=sharing))
 ---
 
 ## 📖 The Hackathon Genesis & Philosophy
