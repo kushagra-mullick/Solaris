@@ -45,8 +45,13 @@ Most field logging applications fail before a worker even types a single word be
 │ CLIENT BROWSER (100% Offline via Service Worker)                                │
 │                                                                                 │
 │  1. App Shell served from local Cache Storage (`sw.js`)                         │
+<<<<<<< HEAD
 │  2. Entry written to browser-native IndexedDB (`SunLogDB`)                     │
 │  3. Status flagged immediately as [ QUEUED ⏳ ]                                 │
+=======
+│  2. Entry written to browser-native IndexedDB (`SunLogDB`)                      │
+│  3. Status flagged immediately as [ QUEUED ⏳]                                  |
+>>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
 │  4. UI updates instantly with Web Audio chime + Vibration confirmation          │
 └────────────────────────────────────────┬────────────────────────────────────────┘
                                          │
@@ -84,6 +89,10 @@ Built specifically for cheap smartphone LCD panels under direct sunlight:
 ### 2. 📴 Offline-First Engine (IndexedDB)
 * Saves logs, GPS/site tags, and photo evidence immediately into local **IndexedDB** (`SunLogDB`).
 * Every offline log receives a high-contrast **`[ QUEUED ⏳ ]`** badge.
+<<<<<<< HEAD
+=======
+* Includes a **"Simulate Offline"** switch in the top bar to easily demonstrate offline workflows live on stage or in demo videos.
+>>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
 
 ### 3. 🔄 Automatic Background Sync
 * Monitors `navigator.onLine` and network status events.
@@ -96,6 +105,7 @@ Built specifically for cheap smartphone LCD panels under direct sunlight:
 * **Photo Attachment:** Instant capture/upload with live preview and demo photo generator.
 * **Multi-Sensory Audio & Haptic Cues:** Synthesized Web Audio tones and vibration patterns (`navigator.vibrate`) give immediate sensory confirmation without needing to squint at the screen.
 
+<<<<<<< HEAD
 ---
 
 ## 🎬 The 60-Second Hackathon Demo Script
@@ -113,6 +123,8 @@ Built specifically for cheap smartphone LCD panels under direct sunlight:
 6. **The Glare Buster:** Tap **`☀️ DAY-WHITE`** and **`A+ ZOOM`** to demonstrate high-contrast solar visibility for outdoor workers.
 
 ---
+=======
+>>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
 
 ## 🛠️ Technology Stack
 
@@ -145,6 +157,7 @@ The application will be live at:
 
 ---
 
+<<<<<<< HEAD
 ## 📋 Bit N Build Dubai Submission Checklist
 
 - [x] **Comprehensive README.md** with problem statement, architecture, tech stack & setup instructions.
@@ -154,5 +167,7 @@ The application will be live at:
 
 ---
 
+=======
+>>>>>>> b48adcbc82b456125e578a6d9df9d63446575312
 ## 📄 License
 MIT License. Built for field workers everywhere.
