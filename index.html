@@ -9,8 +9,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Solaris | Field Incident & Compliance Logger</title>
   
-  <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>">
+  <link rel="manifest" href="./manifest.json?v=2.1">
+  <link rel="stylesheet" href="./css/style.css?v=2.1">
 </head>
 <body class="theme-solar-amber">
   <div id="app-root">
@@ -56,6 +57,20 @@
       </div>
     </header>
 
+    <!-- Live GPS Extreme Heat & Ambient Sun Advisory Strip -->
+    <div class="heat-advisory-strip heat-warning" id="heat-advisory-banner" role="alert">
+      <div class="heat-advisory-left">
+        <div class="heat-badge-row">
+          <span class="heat-badge" id="heat-badge-label">📡 FETCHING LIVE GPS WEATHER...</span>
+          <span class="gps-coords-pill" id="gps-coords-display">LOCATING GPS</span>
+        </div>
+        <span class="heat-advisory-text" id="heat-advisory-desc">Acquiring live ambient temperature & solar radiation from GPS coordinates...</span>
+      </div>
+      <button type="button" id="btn-quick-heat-log" class="btn-heat-shortcut" title="1-Tap Log Heat Fatigue / Stress">
+        + HEAT SOS
+      </button>
+    </div>
+
     <!-- High-Contrast Metric Block Summary -->
     <section class="quick-stats-bar" aria-label="Sync Summary">
       <div class="stat-box">
@@ -75,8 +90,18 @@
     <!-- Main Feed: All logged entries (newest first) -->
     <main class="feed-section">
       <div class="feed-header">
-        <h2 class="feed-title">Field Log Stream</h2>
-        <span id="feed-filter-count" style="font-size: 14px; font-weight: 900; color: var(--text-secondary);">ALL ENTRIES</span>
+        <div>
+          <h2 class="feed-title">Field Log Stream</h2>
+          <span id="feed-filter-count" style="font-size: 13px; font-weight: 900; color: var(--text-secondary);">ALL ENTRIES</span>
+        </div>
+        <button type="button" id="btn-export-csv" class="btn-export-csv" title="Export Shift Logs as CSV (Offline)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>EXPORT CSV</span>
+        </button>
       </div>
 
       <!-- Entries Container -->
@@ -127,6 +152,11 @@
                 <span class="category-tile-name">Safety Issue</span>
               </button>
 
+              <button type="button" class="category-tile" data-category="heat" data-icon="🌡️" data-label="Heat Stress / Fatigue" data-color="#ff3d00" role="radio" aria-checked="false">
+                <span class="category-tile-icon">🌡️</span>
+                <span class="category-tile-name">Heat Stress</span>
+              </button>
+
               <button type="button" class="category-tile" data-category="equipment" data-icon="⚙️" data-label="Equipment Fault" data-color="#ff7700" role="radio" aria-checked="false">
                 <span class="category-tile-icon">⚙️</span>
                 <span class="category-tile-name">Equipment Fault</span>
@@ -159,6 +189,7 @@
           <div>
             <label class="form-label">Quick Field Phrases</label>
             <div class="quick-chips-row">
+              <button type="button" class="quick-chip" data-text="Worker showing acute heat exhaustion; moved to shaded hydration zone">🌡️ Heat exhaustion rest</button>
               <button type="button" class="quick-chip" data-text="Tripping hazard identified and flagged">⚠️ Tripping hazard</button>
               <button type="button" class="quick-chip" data-text="Forklift hydraulic leak observed">⚙️ Hydraulic leak</button>
               <button type="button" class="quick-chip" data-text="Routine perimeter safety inspection completed">✅ Perimeter checked</button>
@@ -167,10 +198,22 @@
             </div>
           </div>
 
-          <!-- Note Textarea -->
+          <!-- Note Textarea with Hands-Free Voice Dictation & EN/AR Language Selector -->
           <div>
-            <label for="log-notes" class="form-label">2. Notes & Observation</label>
-            <textarea id="log-notes" class="note-textarea" placeholder="Describe the condition, location detail, or corrective action..." required rows="3"></textarea>
+            <div class="notes-header-row">
+              <label for="log-notes" class="form-label" style="margin-bottom: 0;">2. Notes & Observation</label>
+              <div class="voice-controls-group">
+                <button type="button" id="btn-voice-lang" class="btn-voice-lang" title="Toggle Dictation Language: English (EN) / Arabic (AR)">
+                  <span id="voice-lang-flag">🇬🇧</span>
+                  <span id="voice-lang-text">EN</span>
+                </button>
+                <button type="button" id="btn-voice-dictate" class="btn-voice-dictate" title="Speak to Log Notes (Hands-Free)">
+                  <span id="voice-icon">🎤</span>
+                  <span id="voice-label">VOICE DICTATE</span>
+                </button>
+              </div>
+            </div>
+            <textarea id="log-notes" class="note-textarea" dir="auto" placeholder="Describe condition, or tap VOICE DICTATE for hands-free..." required rows="3"></textarea>
           </div>
 
           <!-- Location Field -->
@@ -227,8 +270,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="./js/db.js"></script>
-  <script src="./js/sync.js"></script>
-  <script src="./js/app.js"></script>
+  <script src="./js/db.js?v=2.1"></script>
+  <script src="./js/sync.js?v=2.1"></script>
+  <script src="./js/app.js?v=2.1"></script>
 </body>
 </html>

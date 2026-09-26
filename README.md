@@ -89,10 +89,14 @@ Built specifically for cheap smartphone LCD panels under direct sunlight:
 * Monitors `navigator.onLine` and network status events.
 * When connectivity returns, the queue worker automatically uploads pending items with simulated micro-delays, flipping the badge to **`[ SYNCED ✅ ]`** with haptic & green glow confirmation.
 
-### 4. 👷 High-Friction Ergonomics (Thumb-Zone)
+### 4. 👷 High-Friction Ergonomics (Thumb-Zone & Gloved Hands)
+* **📡 Live GPS Weather & Solar Radiation Sensor:** Acquires live device GPS coordinates (`navigator.geolocation`) and queries real-time ambient temperature, Apparent Heat Index, direct solar radiation ($W/m^2$), and humidity via Open-Meteo API with offline cache persistence.
+* **🎤 Bilingual Hands-Free Voice Dictation (`Web Speech API`):** One-tap speech-to-text with instantaneous **🇬🇧 English (`en-US`)** and **🇦🇪 Arabic (`ar-AE`)** toggle, allowing workers with thick work gloves, grease, or sweat to dictate incident notes in both languages with zero repetition or stutter.
+* **🔥 Dynamic Heat Advisory & 1-Tap SOS:** Live color-coded threshold banners (Extreme Heat Danger, High Heat Advisory, Moderate, Normal) with instant `+ HEAT SOS` pre-loaded incident logger for heat stroke/exhaustion emergencies.
 * **Giant 64px+ Action Buttons:** One-handed tap targets reachable with one thumb.
-* **Icon Grid Category Selector:** 6 large, distinct visual category tiles (Safety Issue, Equipment Fault, Incident, Check Complete, Hazard Area, Delivery/Stock) instead of fiddly dropdowns.
-* **One-Tap Quick Phrases:** Preset field notes for instant logging (*"Tripping hazard identified"*, *"Hydraulic leak observed"*, *"PPE non-compliance"*).
+* **Icon Grid Category Selector:** 7 high-vis visual category tiles (Safety Issue, Heat Stress, Equipment Fault, Incident, Check Complete, Hazard Area, Delivery/Stock) instead of fiddly dropdowns.
+* **One-Tap Quick Phrases:** Preset field notes for instant logging (*"Heat exhaustion rest"*, *"Tripping hazard identified"*, *"Hydraulic leak observed"*, *"PPE non-compliance"*).
+* **📥 Offline Shift Export (CSV):** 1-tap local CSV shift download for instant offline supervisor handoffs without internet.
 * **Photo Attachment:** Instant capture/upload with live preview and demo photo generator.
 * **Multi-Sensory Audio & Haptic Cues:** Synthesized Web Audio tones and vibration patterns (`navigator.vibrate`) give immediate sensory confirmation without needing to squint at the screen.
 
@@ -101,7 +105,8 @@ Built specifically for cheap smartphone LCD panels under direct sunlight:
 ## 🛠️ Technology Stack
 
 * **Frontend Core:** Pure Vanilla HTML5, Modern CSS3 (CSS Variables for instantaneous glare theme switching), and ES6+ JavaScript.
-* **Offline Persistence:** Client-side **IndexedDB** (`SunLogDB`) for structured logs and Base64 photo storage.
+* **Speech Recognition:** Web Speech API (`webkitSpeechRecognition`) for hands-free gloved operation.
+* **Offline Persistence:** Client-side **IndexedDB** (`SunLogDB`) for structured logs, Base64 photo storage, and local CSV export.
 * **PWA / Service Worker:** `sw.js` and `manifest.json` for full standalone mobile installation and static asset caching.
 * **Sensory Feedback:** Web Audio API oscillator synthesis + Vibration API (`navigator.vibrate`).
 * **Zero External Dependencies:** Zero build steps required — boots instantly on any static server or CDN.

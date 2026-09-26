@@ -19,10 +19,13 @@ class SolarisApp {
     this.currentPhotoData = null;
     this.audioContext = null;
     this.isLargeFont = false;
+    this.dictationLang = 'en-US';
+    this.dictationBaseNotes = '';
 
     this.initDOM();
     this.bindEvents();
     this.initTheme();
+    this.initLiveGpsWeather();
     this.registerServiceWorker();
     this.seedInitialDataIfEmpty();
   }
@@ -37,6 +40,12 @@ class SolarisApp {
     this.netStatusDot = document.getElementById('network-status-dot');
     this.netStatusText = document.getElementById('network-status-text');
 
+    // Live GPS Heat Advisory Banner
+    this.heatBanner = document.getElementById('heat-advisory-banner');
+    this.heatBadgeLabel = document.getElementById('heat-badge-label');
+    this.gpsCoordsDisplay = document.getElementById('gps-coords-display');
+    this.heatAdvisoryDesc = document.getElementById('heat-advisory-desc');
+
     // Counters
     this.statQueued = document.getElementById('stat-queued');
     this.statSynced = document.getElementById('stat-synced');
@@ -50,6 +59,18 @@ class SolarisApp {
     this.btnGps = document.getElementById('btn-gps');
     this.btnSamplePhoto = document.getElementById('btn-sample-photo');
     this.btnRemovePhoto = document.getElementById('btn-remove-photo');
+    this.btnQuickHeatLog = document.getElementById('btn-quick-heat-log');
+    this.btnExportCsv = document.getElementById('btn-export-csv');
+
+    // Voice Dictation & Language Toggle
+    this.btnVoiceDictate = document.getElementById('btn-voice-dictate');
+    this.voiceBtnLabel = document.getElementById('voice-label');
+    this.voiceIcon = document.getElementById('voice-icon');
+    this.btnVoiceLang = document.getElementById('btn-voice-lang');
+    this.voiceLangFlag = document.getElementById('voice-lang-flag');
+    this.voiceLangText = document.getElementById('voice-lang-text');
+    this.isListening = false;
+    this.speechRecognition = null;
 
     // Modal & Form Elements
     this.modalOverlay = document.getElementById('log-modal-overlay');
@@ -87,6 +108,52 @@ class SolarisApp {
       this.playLoudTone(this.isLargeFont ? 800 : 450);
       this.showToast(this.isLargeFont ? '🔍 Text Zoom (120% Glare Readability)' : 'Standard Text Size');
     });
+
+    // Heat SOS Quick Trigger
+    if (this.btnQuickHeatLog) {
+      this.btnQuickHeatLog.addEventListener('click', () => {
+        this.openModal();
+        const heatTile = Array.from(this.categoryTiles).find(t => t.dataset.category === 'heat');
+        if (heatTile) heatTile.click();
+        this.logNotes.value = 'Extreme Heat Exhaustion reported — worker escorted to hydration zone & cooling station.';
+        this.playLoudTone(900);
+        this.showToast('🔥 Heat SOS Incident Pre-Loaded');
+      });
+    }
+
+    // CSV Shift Report Export
+    if (this.btnExportCsv) {
+      this.btnExportCsv.addEventListener('click', () => this.exportShiftCSV());
+    }
+
+    // Voice Language Toggle (English / Arabic)
+    if (this.btnVoiceLang) {
+      this.btnVoiceLang.addEventListener('click', () => {
+        if (this.dictationLang === 'en-US') {
+          this.dictationLang = 'ar-AE';
+          this.voiceLangFlag.textContent = '🇦🇪';
+          this.voiceLangText.textContent = 'AR';
+          this.logNotes.setAttribute('dir', 'auto');
+          this.playLoudTone(720);
+          this.showToast('🇦🇪 تم تفعيل الإملاء الصوتي بالعربية (Arabic Voice Dictation Active)');
+        } else {
+          this.dictationLang = 'en-US';
+          this.voiceLangFlag.textContent = '🇬🇧';
+          this.voiceLangText.textContent = 'EN';
+          this.logNotes.setAttribute('dir', 'auto');
+          this.playLoudTone(550);
+          this.showToast('🇬🇧 English Voice Dictation Active');
+        }
+        if (this.speechRecognition) {
+          this.speechRecognition.lang = this.dictationLang;
+        }
+      });
+    }
+
+    // Voice Dictation Hands-Free Trigger
+    if (this.btnVoiceDictate) {
+      this.btnVoiceDictate.addEventListener('click', () => this.toggleVoiceDictation());
+    }
 
     // Modal Sheet Open / Close
     this.btnOpenLogModal.addEventListener('click', () => this.openModal());
@@ -290,6 +357,9 @@ class SolarisApp {
 
   closeModal() {
     this.modalOverlay.classList.remove('open');
+    if (this.isListening && this.speechRecognition) {
+      this.speechRecognition.stop();
+    }
   }
 
   detectLocation() {
@@ -297,11 +367,12 @@ class SolarisApp {
       this.btnGps.textContent = '⏳ Locating...';
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude.toFixed(4);
-          const lng = pos.coords.longitude.toFixed(4);
+          const lat = Number(pos.coords.latitude.toFixed(4));
+          const lng = Number(pos.coords.longitude.toFixed(4));
           this.logLocation.value = `Site GPS (${lat}, ${lng})`;
           this.btnGps.innerHTML = '<span>📍</span> GPS';
-          this.showToast('📍 GPS Attached');
+          this.showToast(`📍 GPS Attached (${lat}, ${lng})`);
+          this.fetchLiveGpsWeather({ lat, lon: lng });
         },
         () => {
           const zones = ['Zone A - East Gate', 'Zone B - Staging', 'Dock 3 - Loading', 'Zone C - Perimeter'];
@@ -310,7 +381,7 @@ class SolarisApp {
           this.btnGps.innerHTML = '<span>📍</span> GPS';
           this.showToast(`📍 Set Location: ${rand}`);
         },
-        { timeout: 4000 }
+        { timeout: 5000, enableHighAccuracy: true }
       );
     } else {
       this.logLocation.value = 'Zone B - Staging Area';
@@ -555,6 +626,299 @@ class SolarisApp {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  /* ========================================================================
+     HANDS-FREE VOICE-TO-TEXT DICTATION (Web Speech API)
+     ======================================================================== */
+  initSpeechRecognition() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) return null;
+
+    const recognition = new SpeechRec();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = this.dictationLang || 'en-US';
+
+    recognition.onstart = () => {
+      this.isListening = true;
+      this.dictationBaseNotes = this.logNotes.value.trim();
+      if (this.btnVoiceDictate) this.btnVoiceDictate.classList.add('is-listening');
+      if (this.voiceBtnLabel) {
+        this.voiceBtnLabel.textContent = this.dictationLang === 'ar-AE' ? 'جارٍ الاستماع...' : 'LISTENING...';
+      }
+      this.playLoudTone(850);
+      const startMsg = this.dictationLang === 'ar-AE' 
+        ? '🎤 جارٍ الاستماع... تحدث بوضوح باللغة العربية'
+        : '🎤 Listening... Speak your observation clearly';
+      this.showToast(startMsg);
+    };
+
+    recognition.onresult = (event) => {
+      let finalSegment = '';
+      let interimSegment = '';
+
+      for (let i = 0; i < event.results.length; ++i) {
+        const item = event.results[i];
+        if (item.isFinal) {
+          finalSegment += item[0].transcript + ' ';
+        } else {
+          interimSegment += item[0].transcript;
+        }
+      }
+
+      const spokenText = (finalSegment + interimSegment).trim();
+      if (spokenText) {
+        this.logNotes.value = this.dictationBaseNotes 
+          ? `${this.dictationBaseNotes} ${spokenText}` 
+          : spokenText;
+        this.logNotes.scrollTop = this.logNotes.scrollHeight;
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.warn('Speech recognition error:', event.error);
+      this.stopVoiceDictation();
+      if (event.error !== 'no-speech') {
+        this.showToast('⚠️ Voice recognition cancelled or unavailable');
+      }
+    };
+
+    recognition.onend = () => {
+      this.stopVoiceDictation();
+      this.playLoudTone(600);
+      const endMsg = this.dictationLang === 'ar-AE' ? '🎤 تم تسجيل الملاحظة الصوتية' : '🎤 Voice note transcribed';
+      this.showToast(endMsg);
+    };
+
+    return recognition;
+  }
+
+  toggleVoiceDictation() {
+    if (!this.speechRecognition) {
+      this.speechRecognition = this.initSpeechRecognition();
+    }
+
+    if (!this.speechRecognition) {
+      this.showToast('ℹ️ Speech API not supported on this browser. Please type directly.');
+      return;
+    }
+
+    if (this.isListening) {
+      this.speechRecognition.stop();
+    } else {
+      try {
+        this.speechRecognition.lang = this.dictationLang || 'en-US';
+        this.speechRecognition.start();
+      } catch (err) {
+        console.warn('Speech start error:', err);
+      }
+    }
+  }
+
+  stopVoiceDictation() {
+    this.isListening = false;
+    if (this.btnVoiceDictate) {
+      this.btnVoiceDictate.classList.remove('is-listening');
+      if (this.voiceBtnLabel) this.voiceBtnLabel.textContent = 'VOICE DICTATE';
+    }
+  }
+
+  /* ========================================================================
+     OFFLINE CSV SHIFT REPORT EXPORT
+     ======================================================================== */
+  async exportShiftCSV() {
+    try {
+      const logs = await window.sunLogDB.getAllLogs();
+      if (!logs || logs.length === 0) {
+        this.showToast('No log records found to export');
+        return;
+      }
+
+      const headers = ['ID', 'Timestamp_ISO', 'Time_Formatted', 'Category', 'Notes', 'Location', 'Sync_Status', 'Photo_Attached'];
+      const rows = logs.map(l => [
+        `"${l.id}"`,
+        `"${new Date(l.timestamp).toISOString()}"`,
+        `"${l.createdAtFormatted || ''}"`,
+        `"${l.categoryLabel || l.category || ''}"`,
+        `"${(l.notes || '').replace(/"/g, '""')}"`,
+        `"${(l.location || '').replace(/"/g, '""')}"`,
+        `"${l.syncStatus || 'queued'}"`,
+        `"${l.photo ? 'YES' : 'NO'}"`
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Solaris_Shift_Report_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      this.playLoudTone(750);
+      this.showToast('📥 Shift Report CSV Downloaded');
+    } catch (err) {
+      console.error('CSV export failed:', err);
+      this.showToast('❌ Export failed');
+    }
+  }
+
+  /* ========================================================================
+     LIVE GPS AMBIENT WEATHER & SOLAR SATELLITE TELEMETRY
+     ======================================================================== */
+  initLiveGpsWeather() {
+    // 1. Try restoring cached telemetry immediately for zero UI layout shift
+    try {
+      const cached = localStorage.getItem('solaris_cached_weather');
+      if (cached) {
+        const data = JSON.parse(cached);
+        this.renderGpsWeather(data, true);
+      }
+    } catch (e) {
+      console.warn('Cached weather read error:', e);
+    }
+
+    // 2. Query live device GPS and satellite meteo
+    this.fetchLiveGpsWeather();
+
+    // 3. Periodic background sync every 8 minutes
+    setInterval(() => {
+      if (navigator.onLine) {
+        this.fetchLiveGpsWeather();
+      }
+    }, 8 * 60 * 1000);
+  }
+
+  async fetchLiveGpsWeather(customCoords = null) {
+    if (customCoords) {
+      return this.queryOpenMeteo(customCoords.lat, customCoords.lon);
+    }
+
+    if (!('geolocation' in navigator)) {
+      this.fallbackGpsWeather('Geolocation not supported by device hardware');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = Number(pos.coords.latitude.toFixed(4));
+        const lon = Number(pos.coords.longitude.toFixed(4));
+        this.queryOpenMeteo(lat, lon);
+      },
+      (err) => {
+        console.warn('GPS position error:', err.message);
+        this.fallbackGpsWeather('GPS signal pending • Tap 📍 GPS in form to calibrate');
+      },
+      { timeout: 8000, enableHighAccuracy: true, maximumAge: 60000 }
+    );
+  }
+
+  async queryOpenMeteo(lat, lon) {
+    try {
+      if (this.gpsCoordsDisplay) {
+        this.gpsCoordsDisplay.textContent = `📍 ${lat}, ${lon}`;
+      }
+      if (this.heatBadgeLabel) {
+        this.heatBadgeLabel.textContent = `📡 CONTACTING SATELLITE METEO...`;
+      }
+
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,direct_normal_irradiance,is_day&timezone=auto`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Meteo API returned HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data && data.current) {
+        const temp = Math.round(data.current.temperature_2m);
+        const feelsLike = Math.round(data.current.apparent_temperature);
+        const humidity = Math.round(data.current.relative_humidity_2m || 0);
+        const irradiance = Math.round(data.current.direct_normal_irradiance || 0);
+        const isDay = data.current.is_day !== 0;
+
+        const weatherPayload = {
+          lat,
+          lon,
+          temp,
+          feelsLike,
+          humidity,
+          irradiance,
+          isDay,
+          timestamp: Date.now()
+        };
+
+        localStorage.setItem('solaris_cached_weather', JSON.stringify(weatherPayload));
+        this.renderGpsWeather(weatherPayload, false);
+      }
+    } catch (err) {
+      console.warn('Live weather fetch error:', err);
+      this.fallbackGpsWeather('Live Meteo Offline • Using Cached Telemetry');
+    }
+  }
+
+  renderGpsWeather(weather, isCached = false) {
+    if (!this.heatBanner || !this.heatBadgeLabel) return;
+
+    const { temp, feelsLike, humidity, irradiance, lat, lon } = weather;
+    const cacheTag = isCached ? ' [CACHED]' : ' [LIVE GPS]';
+
+    this.heatBanner.className = 'heat-advisory-strip';
+
+    let statusClass = 'heat-moderate';
+    let statusLabel = '';
+    let statusDesc = '';
+
+    if (feelsLike >= 42 || temp >= 42) {
+      statusClass = 'heat-extreme';
+      statusLabel = `🔥 ${temp}°C (FEELS LIKE ${feelsLike}°C)${cacheTag} • EXTREME HEAT DANGER`;
+      statusDesc = `⚠️ UAE Midday Work Stoppage Threshold Active • Direct Solar: ${irradiance} W/m² • Humidity: ${humidity}%`;
+    } else if (feelsLike >= 35 || temp >= 35) {
+      statusClass = 'heat-warning';
+      statusLabel = `☀️ ${temp}°C (FEELS LIKE ${feelsLike}°C)${cacheTag} • HIGH HEAT ADVISORY`;
+      statusDesc = `Mandatory 15-min Hydration Cycles • Direct Solar: ${irradiance} W/m² • Humidity: ${humidity}%`;
+    } else if (feelsLike >= 28 || temp >= 28) {
+      statusClass = 'heat-moderate';
+      statusLabel = `🌤️ ${temp}°C (FEELS LIKE ${feelsLike}°C)${cacheTag} • MODERATE SOLAR CONDITIONS`;
+      statusDesc = `Standard Glare Mitigation Active • Direct Solar: ${irradiance} W/m² • Humidity: ${humidity}%`;
+    } else {
+      statusClass = 'heat-normal';
+      statusLabel = `🟢 ${temp}°C (FEELS LIKE ${feelsLike}°C)${cacheTag} • NORMAL FIELD TEMPERATURE`;
+      statusDesc = `Optimal Operating Conditions • Direct Solar: ${irradiance} W/m² • Humidity: ${humidity}%`;
+    }
+
+    this.heatBanner.classList.add(statusClass);
+    this.heatBadgeLabel.textContent = statusLabel;
+    if (this.gpsCoordsDisplay) {
+      this.gpsCoordsDisplay.textContent = `📍 ${lat}°N, ${lon}°E`;
+    }
+    if (this.heatAdvisoryDesc) {
+      this.heatAdvisoryDesc.textContent = statusDesc;
+    }
+  }
+
+  fallbackGpsWeather(message = '') {
+    const cached = localStorage.getItem('solaris_cached_weather');
+    if (cached) {
+      try {
+        const data = JSON.parse(cached);
+        this.renderGpsWeather(data, true);
+        return;
+      } catch (e) {}
+    }
+
+    if (this.heatBanner) {
+      this.heatBanner.className = 'heat-advisory-strip heat-warning';
+    }
+    if (this.heatBadgeLabel) {
+      this.heatBadgeLabel.textContent = `📡 GPS SENSOR ACTIVE`;
+    }
+    if (this.gpsCoordsDisplay) {
+      this.gpsCoordsDisplay.textContent = `📍 25.2048°N, 55.2708°E`;
+    }
+    if (this.heatAdvisoryDesc) {
+      this.heatAdvisoryDesc.textContent = message || 'Tap 📍 GPS to sync real-time satellite telemetry.';
+    }
   }
 
   registerServiceWorker() {

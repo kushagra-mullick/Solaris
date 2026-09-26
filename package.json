@@ -3,6 +3,8 @@
   "version": "1.1.0",
   "description": "Solaris - High-Glare Sunlight Field Compliance & Incident Logging Tool",
   "scripts": {
-    "start": "npx serve -l 3456 ."
+    "start": "npx serve -l 3456 .",
+    "dev": "npx serve -l 3456 .",
+    "build": "echo \"Pure static zero-dependency PWA: ready for deployment\""
   }
 }

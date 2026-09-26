@@ -379,6 +379,106 @@ body.theme-solar-bright .status-dot {
   font-weight: 800;
 }
 
+/* Heat Advisory Strip (Live GPS Extreme Weather & Solar Glare) */
+.heat-advisory-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #d50000;
+  color: #ffffff;
+  border-bottom: var(--border-thickness) solid #000000;
+  font-weight: 800;
+  transition: background 0.3s ease;
+}
+
+.heat-advisory-strip.heat-extreme {
+  background: #d50000 !important;
+  color: #ffffff !important;
+}
+
+.heat-advisory-strip.heat-warning {
+  background: #ff6d00 !important;
+  color: #ffffff !important;
+}
+
+.heat-advisory-strip.heat-moderate {
+  background: #ffea00 !important;
+  color: #000000 !important;
+}
+
+.heat-advisory-strip.heat-normal {
+  background: #00c853 !important;
+  color: #000000 !important;
+}
+
+body.theme-solar-bright .heat-advisory-strip {
+  border-bottom: 2px solid #000000;
+}
+
+.heat-advisory-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.heat-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.heat-badge {
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.gps-coords-pill {
+  font-size: calc(10px * var(--font-scale));
+  background: rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.heat-advisory-strip.heat-moderate .gps-coords-pill,
+.heat-advisory-strip.heat-normal .gps-coords-pill {
+  background: rgba(0, 0, 0, 0.2);
+  color: #000000;
+}
+
+.heat-advisory-text {
+  font-size: calc(11px * var(--font-scale));
+  opacity: 0.95;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-heat-shortcut {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+body.theme-solar-bright .btn-heat-shortcut {
+  background: #000000;
+  color: #ffea00;
+  border-color: #000000;
+}
+
 /* ==========================================================================
    FEED & ENTRY CARDS
    ========================================================================== */
@@ -392,6 +492,29 @@ body.theme-solar-bright .status-dot {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+}
+
+.btn-export-csv {
+  background: var(--bg-card);
+  border: var(--border-thickness) solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: calc(11px * var(--font-scale));
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-export-csv:hover {
+  background: var(--bg-tertiary);
+}
+
+.btn-export-csv:active {
+  background: var(--color-solar-yellow);
+  color: #000000;
 }
 
 .feed-title {
@@ -817,6 +940,78 @@ body.theme-solar-amber .category-tile.selected {
 .quick-chip:active {
   background: var(--color-solar-yellow);
   color: #000000;
+}
+
+/* Notes Header & Hands-Free Voice Dictate */
+.notes-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.voice-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-voice-lang {
+  background: var(--bg-card);
+  border: var(--border-thickness) solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-voice-lang:hover {
+  background: var(--bg-tertiary);
+}
+
+.btn-voice-lang:active {
+  background: var(--color-solar-yellow);
+  color: #000000;
+}
+
+.btn-voice-dictate {
+  background: var(--bg-card);
+  border: var(--border-thickness) solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-voice-dictate:hover {
+  background: var(--bg-tertiary);
+}
+
+.btn-voice-dictate.is-listening {
+  background: var(--color-danger-red) !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  animation: pulse-mic 0.8s infinite alternate;
+}
+
+@keyframes pulse-mic {
+  0% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.7); }
+  100% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(255, 23, 68, 0); }
 }
 
 /* Textarea */
